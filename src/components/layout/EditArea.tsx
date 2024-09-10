@@ -7,9 +7,6 @@ import {
   TextField,
   Button,
   Typography,
-  Box,
-  Alert,
-  AlertTitle,
   Stack,
   FormControl,
   InputLabel,
@@ -18,6 +15,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import { Destination,Trip } from "../../types/type";
 
 export const EditArea: React.FC = () => {
   const { id } = useParams();
@@ -25,14 +23,12 @@ export const EditArea: React.FC = () => {
   const { user } = useAuth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [trip, setTrip] = useState<any>({});
-  const [error, setError] = useState< string | null >(null);
   const [selectedDestinationIndex, setSelectedDestinationIndex] =
     useState< number | null >(null);
 
   useEffect(() => {
     const fetchTrip = async () => {
       if (!user || !id) {
-        setError("ユーザー情報または旅行IDが無効です");
         return;
       }
 
@@ -45,17 +41,17 @@ export const EditArea: React.FC = () => {
             ...docSnap.data(),
             startDate: docSnap.data().startDate.toDate(),
             endDate: docSnap.data().endDate.toDate(),
-            destinations: docSnap.data().destinations.map((destination: any) => ({
+            destinations: docSnap.data().destinations.map((destination:Destination) => ({
               ...destination,
               date: new Date(destination.date),
             })),
           });
         } else {
-          setError("旅行が見つかりません");
+         console.log("エラーが発生しました。")
         }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        setError("データの取得中にエラーが発生しました");
+        console.log("データの取得中にエラーが発生しました");
       }
     };
 
@@ -65,7 +61,7 @@ export const EditArea: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !id) {
-      setError("ユーザー情報または旅行IDが無効です");
+      console.log("ユーザー情報または旅行IDが無効です");
       return;
     }
 
@@ -76,15 +72,15 @@ export const EditArea: React.FC = () => {
         startDate: trip.startDate,
         endDate: trip.endDate,
         budget: trip.budget,
-        destinations: trip.destinations.map((destination: any) => ({
+        destinations: trip.destinations.map((destination: Destination) => ({
           ...destination,
-          date: destination.date.toISOString(),
+          date: destination.date.toString(),
         })),
       });
       navigate("/dashboard");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      setError("旅行の更新に失敗しました");
+      console.log("旅行の更新に失敗しました");
     }
   };
 
@@ -98,7 +94,7 @@ export const EditArea: React.FC = () => {
     },
     value: string | Date
   ) => {
-    setTrip((prevTrip) => {
+    setTrip((prevTrip: Trip) => {
       const updatedDestinations = [...prevTrip.destinations];
       if (field === "date") {
         updatedDestinations[index][field] = new Date(value as string);
@@ -166,10 +162,11 @@ export const EditArea: React.FC = () => {
                 id="destination-select"
                 value={selectedDestinationIndex ?? ''}
                 onChange={(e) =>
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   handleDestinationSelect(e.target.value as any)
                 }
               >
-                {trip.destinations?.map((destination, index) => (
+                {trip.destinations?.map((destination: Destination, index: number) => (
                   <MenuItem key={index} value={index}>
                     {destination.name}
                   </MenuItem>

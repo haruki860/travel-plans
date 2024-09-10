@@ -13,7 +13,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
-const pages = ["ダッシュボード", "プラン作成", "プラン編集"];
+const pages = ["ダッシュボード", "プラン作成", "未定"];
 const settings = ["Logout"];
 
 export const ResponsiveAppBar = () => {

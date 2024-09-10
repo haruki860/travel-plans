@@ -15,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Stack } from "@mui/material";
+import { Destination } from "../../types/type";
 
 // スタイリングをカスタマイズ
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -104,11 +105,12 @@ export const DetailPlanArea: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {trip.destinations.map((destination: any, index: number) => (
+            {trip.destinations.map((destination: Destination, index: number) => (
                 <StyledTableRow key={index}>
                   <StyledTableCell component="th" scope="row">
-                    {destination.date && destination.date.toDate
-                      ? destination.date.toDate().toLocaleDateString()
+                    {/* edit_1 */}
+                    {destination.date && typeof destination.date === 'object'
+                      ? destination.date.toLocaleDateString()
                       : new Date(destination.date).toLocaleDateString()}
                   </StyledTableCell>
                   <StyledTableCell>{destination.name}</StyledTableCell>
