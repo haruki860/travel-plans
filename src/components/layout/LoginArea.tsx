@@ -15,7 +15,6 @@ export const LoginArea: React.FC = () => {
 
   const handleLogin = () => {
     signInWithGoogle().then(() => {
-      navigate("/dashboard");
     });
   };
 
