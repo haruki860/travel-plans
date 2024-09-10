@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../../firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAuth } from "../hooks/useAuth";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
@@ -16,6 +16,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Stack } from "@mui/material";
 import { Destination } from "../../types/type";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
 // スタイリングをカスタマイズ
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -61,6 +63,21 @@ export const DetailPlanArea: React.FC = () => {
     fetchTrip();
   }, [user, id]);
 
+  const handleDeleteDestination = async (index: number) => {
+    if (!trip || !user) {
+      // user もチェック
+      return;
+    }
+    if (window.confirm("本当に削除しますか？")) {
+      // 削除確認ダイアログを追加
+      const updatedDestinations = [...trip.destinations];
+      updatedDestinations.splice(index, 1);
+      const tripRef = doc(db, "users", user.uid, "trips", trip.id);
+      await updateDoc(tripRef, { destinations: updatedDestinations });
+      setTrip({ ...trip, destinations: updatedDestinations });
+    }
+  };
+
   if (!trip) {
     return <div>Loading...</div>;
   }
@@ -69,12 +86,15 @@ export const DetailPlanArea: React.FC = () => {
     <Box sx={{ p: 3 }}>
       <Stack spacing={3}>
         {/* タイトル部分 */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h4" component="h1" gutterBottom>
             {trip.tripName}
           </Typography>
         </Stack>
-        
         {/* 情報部分 */}
         <Stack direction="row" spacing={2}>
           <Typography variant="body1" gutterBottom>
@@ -87,12 +107,10 @@ export const DetailPlanArea: React.FC = () => {
         <Typography variant="body1" gutterBottom>
           予算: {trip.budget}円
         </Typography>
-
         {/* 目的地タイトル */}
         <Typography variant="h5" component="h2" gutterBottom>
           目的地
         </Typography>
-
         {/* テーブル部分 */}
         <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -102,33 +120,45 @@ export const DetailPlanArea: React.FC = () => {
                 <StyledTableCell>目的地</StyledTableCell>
                 <StyledTableCell>メモ</StyledTableCell>
                 <StyledTableCell>Google Maps</StyledTableCell>
+                <StyledTableCell>削除</StyledTableCell>{" "}
+                {/* 削除ボタン用のセルを追加 */}
               </TableRow>
             </TableHead>
             <TableBody>
-            {trip.destinations.map((destination: Destination, index: number) => (
-                <StyledTableRow key={index}>
-                  <StyledTableCell component="th" scope="row">
-                    {/* edit_1 */}
-                    {destination.date && typeof destination.date === 'object'
-                      ? destination.date.toLocaleDateString()
-                      : new Date(destination.date).toLocaleDateString()}
-                  </StyledTableCell>
-                  <StyledTableCell>{destination.name}</StyledTableCell>
-                  <StyledTableCell>{destination.notes}</StyledTableCell>
-                  <StyledTableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      href={destination.googleMapLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{ textTransform: "none" }}
-                    >
-                      Google Maps で開く
-                    </Button>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
+              {trip.destinations.map(
+                (destination: Destination, index: number) => (
+                  <StyledTableRow key={index}>
+                    <StyledTableCell component="th" scope="row">
+                      {/* edit_1 */}
+                      {destination.date && typeof destination.date === "object"
+                        ? destination.date.toLocaleDateString()
+                        : new Date(destination.date).toLocaleDateString()}
+                    </StyledTableCell>
+                    <StyledTableCell>{destination.name}</StyledTableCell>
+                    <StyledTableCell>{destination.notes}</StyledTableCell>
+                    <StyledTableCell>
+                      <Button
+                        color="primary"
+                        href={destination.googleMapLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ textTransform: "none" }}
+                      >
+                        <FmdGoodIcon />
+                      </Button>
+                    </StyledTableCell>
+                    <StyledTableCell>
+                      <Button
+                        color="error"
+                        onClick={() => handleDeleteDestination(index)}
+                      >
+                        <DeleteForeverIcon/>
+                      </Button>
+                    </StyledTableCell>
+                    {/* 削除ボタンを追加 */}
+                  </StyledTableRow>
+                )
+              )}
             </TableBody>
           </Table>
         </TableContainer>

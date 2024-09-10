@@ -9,6 +9,7 @@ import { DetailPlanPage } from "./components/pages/DetailPlanPage";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme";
 import { EditPlanPage } from "./components/pages/EditPlanPage";
+import { AuthProvider } from "./components/context/AuthContext";
 const App: React.FC = () => {
   const { user, isLoading } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,21 +24,22 @@ const App: React.FC = () => {
   console.log(user);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        {isLoggedIn && <ResponsiveAppBar />}
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashbordPage />} />
-          <Route path="/new-plan" element={<NewPlanPage />} />
-          <Route path="/dashboard/:id" element={<DetailPlanPage />} />
-          <Route path="/dashboard/edit/:id" element={<EditPlanPage />} />
-
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          {isLoggedIn && <ResponsiveAppBar />}
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<DashbordPage />} />
+            <Route path="/new-plan" element={<NewPlanPage />} />
+            <Route path="/dashboard/:id" element={<DetailPlanPage />} />
+            <Route path="/dashboard/edit/:id" element={<EditPlanPage />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    </AuthProvider>
   );
 };
 

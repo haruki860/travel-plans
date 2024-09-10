@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Button, LinearProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export const LoginArea: React.FC = () => {
-  const { isLoading, signInWithGoogle } = useAuth();
+  const { isLoading, signInWithGoogle,user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
 
   const handleLogin = () => {
     signInWithGoogle().then(() => {

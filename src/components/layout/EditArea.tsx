@@ -109,6 +109,21 @@ export const EditArea: React.FC = () => {
     setSelectedDestinationIndex(index);
   };
 
+  const handleAddDestination = () => {
+    setTrip((prevTrip: Trip) => ({
+      ...prevTrip,
+      destinations: [
+        ...prevTrip.destinations,
+        {
+          name: "",
+          date: new Date(),
+          notes: "",
+          googleMapLink: "",
+        },
+      ],
+    }));
+  };
+
   return (
     <Card sx={{ maxWidth: 600, margin: "auto", marginTop: 2 }}>
       <CardContent>
@@ -237,6 +252,9 @@ export const EditArea: React.FC = () => {
                 />
               </Stack>
             )}
+            <Button variant="contained" onClick={handleAddDestination}>
+              訪問先を追加
+            </Button>
             <Button type="submit" variant="contained" color="primary">
               保存
             </Button>

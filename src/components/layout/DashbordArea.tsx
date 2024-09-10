@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // useNavigate をインポート
 import { NewPlanButton } from "../ui/ NewPlanButton";
 import { db } from "../../firebase/firebase";
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, query, deleteDoc, doc } from "firebase/firestore";
 import { useAuth } from "../hooks/useAuth";
 import {
   Table,
@@ -15,6 +15,9 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import ArticleIcon from '@mui/icons-material/Article';
 
 export const DashbordArea: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,6 +44,19 @@ export const DashbordArea: React.FC = () => {
     fetchTrips();
   }, [user]);
 
+  const handleDeleteTrip = async (tripId: string) => {
+    if (!user) {
+      return;
+    }
+    if (window.confirm("本当に削除しますか？")) { // 削除確認ダイアログを追加
+      const tripRef = doc(db, "users", user.uid, "trips", tripId);
+      await deleteDoc(tripRef);
+      // 削除後に trips を更新
+      const updatedTrips = trips.filter((trip) => trip.id !== tripId);
+      setTrips(updatedTrips);
+    }
+  };
+
   return (
     <>
       <Box sx={{ m: 2 }}>
@@ -66,6 +82,7 @@ export const DashbordArea: React.FC = () => {
               <TableCell>予算</TableCell>
               <TableCell>詳細</TableCell>
               <TableCell>編集</TableCell>
+              <TableCell>削除</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -83,24 +100,33 @@ export const DashbordArea: React.FC = () => {
                 <TableCell>{trip.budget}円</TableCell>
                 <TableCell>
                   <Button
-                    variant="contained"
                     color="primary"
                     onClick={() => {
                       navigate(`/dashboard/${trip.id}`);
                     }}
                   >
-                    詳細
+                    <ArticleIcon />
                   </Button>
                 </TableCell>
                 <TableCell>
                   <Button
-                    variant="contained"
+                    variant='text'
                     color="primary"
                     onClick={() => {
                       navigate(`/dashboard/edit/${trip.id}`);
                     }}
                   >
-                    編集
+                    <ModeEditIcon />
+                  </Button>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    color="error"
+                    onClick={() => {
+                      handleDeleteTrip(trip.id);
+                    }}
+                  >
+                    <DeleteForeverIcon/>
                   </Button>
                 </TableCell>
               </TableRow>
