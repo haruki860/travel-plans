@@ -10,6 +10,8 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme";
 import { EditPlanPage } from "./components/pages/EditPlanPage";
 import { AuthProvider } from "./components/context/AuthContext";
+import ProfilePage from "./components/pages/ProfilePage";
+import RegisterPage from "./components/pages/RegisterPage";
 const App: React.FC = () => {
   const { user, isLoading } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,6 +34,8 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profileregister" element={<RegisterPage />} />
             <Route path="/dashboard" element={<DashbordPage />} />
             <Route path="/new-plan" element={<NewPlanPage />} />
             <Route path="/dashboard/:id" element={<DetailPlanPage />} />

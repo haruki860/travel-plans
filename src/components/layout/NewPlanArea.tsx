@@ -26,6 +26,7 @@ export const NewPlanArea: React.FC = () => {
     }[]
   >([]);
   const [notes, setNotes] = useState("");
+  const [sharedWith, setSharedWith] = useState<string[]>([]); // 共有相手のUIDを追加
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export const NewPlanArea: React.FC = () => {
     }
     try {
       const newTripRef = await addDoc(
-        collection(db, "users", user.uid, "trips"),
+        collection(db, "trips"), // コレクション名を "trips" に変更
         {
           tripName,
           startDate,
@@ -51,16 +52,18 @@ export const NewPlanArea: React.FC = () => {
             googleMapLink: destination.googleMapLink,
           })),
           notes,
+          sharedWith, // 共有相手のUIDをFirestoreに保存
+          createdBy: user.uid, // 作成者のUIDを追加
         }
       );
-      console.log(newTripRef); // 変更点: newTripRefの内容をコンソールに出力
+      console.log(newTripRef); // newTripRefの内容をコンソールに出力
       // 旅行プランの詳細ページにリダイレクト
-      navigate(`/detail-plan/${newTripRef.id}`);
+      navigate(`/dashboard/${newTripRef.id}`);
     } catch (error) {
       console.error("旅行プランの作成に失敗しました:", error);
-      // エラー発生時の処理を追加
     }
   };
+
   const handleDestinationChange = (
     index: number,
     field: keyof {
@@ -92,6 +95,18 @@ export const NewPlanArea: React.FC = () => {
         googleMapLink: "",
       },
     ]);
+  };
+
+  const addSharedUser = () => {
+    setSharedWith((prevSharedWith) => [...prevSharedWith, ""]); // 空の入力欄を追加
+  };
+
+  const handleSharedUserChange = (index: number, value: string) => {
+    setSharedWith((prevSharedWith) => {
+      const updatedSharedWith = [...prevSharedWith];
+      updatedSharedWith[index] = value;
+      return updatedSharedWith;
+    });
   };
 
   return (
@@ -179,6 +194,21 @@ export const NewPlanArea: React.FC = () => {
             ))}
             <Button variant="contained" onClick={addDestination}>
               訪問先を追加
+            </Button>
+            <Typography variant="subtitle1" gutterBottom>
+              共有ユーザーのUID
+            </Typography>
+            {sharedWith.map((uid, index) => (
+              <TextField
+                key={index}
+                fullWidth
+                label="共有ユーザーUID"
+                value={uid}
+                onChange={(e) => handleSharedUserChange(index, e.target.value)}
+              />
+            ))}
+            <Button variant="contained" onClick={addSharedUser}>
+              共有ユーザーを追加
             </Button>
             <TextField
               fullWidth

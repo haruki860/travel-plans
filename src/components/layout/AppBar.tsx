@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 
 const pages = ["ダッシュボード", "プラン作成", "未定"];
-const settings = ["Logout"];
+const settings = ["プロフィール","ログアウト" ];
 
 export const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -72,7 +72,11 @@ export const ResponsiveAppBar = () => {
     handleCloseNavMenu();
   };
 
-  // ログインしていない場合はログインページにリダイレクト
+  const handleProfileClick = () => {
+    navigate("/profile");
+    handleCloseUserMenu();
+  };
+
   if (!user) {
     navigate("/login");
     return null;
@@ -186,7 +190,7 @@ export const ResponsiveAppBar = () => {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleLogout}>
+                <MenuItem key={setting} onClick={setting === "ログアウト" ? handleLogout : handleProfileClick}>
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}

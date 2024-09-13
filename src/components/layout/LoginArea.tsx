@@ -2,20 +2,32 @@ import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Button, LinearProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { db } from "../../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export const LoginArea: React.FC = () => {
-  const { isLoading, signInWithGoogle,user } = useAuth();
+  const { isLoading, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      const checkUser = async () => {
+        if (user?.uid) {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            navigate("/dashboard");
+          } else {
+            navigate("/profileregister");
+          }
+        }
+      };
+      checkUser();
     }
   }, [user, navigate]);
 
   const handleLogin = () => {
-    signInWithGoogle().then(() => {
-    });
+    signInWithGoogle().then(() => {});
   };
 
   return (

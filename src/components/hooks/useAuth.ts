@@ -6,8 +6,6 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-import { db } from "../../firebase/firebase";
-import { doc, setDoc } from "firebase/firestore";
 
 const provider = new GoogleAuthProvider();
 
@@ -21,15 +19,6 @@ export const useAuth = () => {
       setUser(user);
       setCurrentUser(user);
       setIsLoading(false);
-
-      // ログイン時にusersコレクションにユーザー情報を追加
-      if (user) {
-        setDoc(doc(db, "users", user.uid), {
-          name: user.displayName || "",
-          email: user.email || "",
-          profileImage: user.photoURL || "",
-        });
-      }
     });
 
     return () => unsubscribe();

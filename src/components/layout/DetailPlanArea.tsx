@@ -47,7 +47,7 @@ export const DetailPlanArea: React.FC = () => {
       if (!user || !id) {
         return;
       }
-      const tripRef = doc(db, "users", user.uid, "trips", id);
+      const tripRef = doc(db, "trips", id); // コレクション名を "trips" に変更
       const docSnap = await getDoc(tripRef);
       if (docSnap.exists()) {
         setTrip({
@@ -72,7 +72,7 @@ export const DetailPlanArea: React.FC = () => {
       // 削除確認ダイアログを追加
       const updatedDestinations = [...trip.destinations];
       updatedDestinations.splice(index, 1);
-      const tripRef = doc(db, "users", user.uid, "trips", trip.id);
+      const tripRef = doc(db, "trips", trip.id); // コレクション名を "trips" に変更
       await updateDoc(tripRef, { destinations: updatedDestinations });
       setTrip({ ...trip, destinations: updatedDestinations });
     }
@@ -155,7 +155,6 @@ export const DetailPlanArea: React.FC = () => {
                         <DeleteForeverIcon/>
                       </Button>
                     </StyledTableCell>
-                    {/* 削除ボタンを追加 */}
                   </StyledTableRow>
                 )
               )}
