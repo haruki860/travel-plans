@@ -20,7 +20,7 @@ import {
   Chip,
   IconButton,
   Divider,
-  Tooltip, 
+  Tooltip,
 } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -148,24 +148,36 @@ export const DashbordArea: React.FC = () => {
           >
             旅行一覧
           </Typography>
+          {/* スクロール可能なコンテナ */}
           <Box
             sx={{
               display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
               gap: 4,
+              padding: 2,
+              overflowX: "auto", // デフォルトで横スクロールを許可
+              flexWrap: "nowrap", // 横スクロール時に1行に並べる
+              scrollbarWidth: "none", // Firefox向け: スクロールバーを非表示
+              "&::-webkit-scrollbar": {
+                display: "none", // Chrome向け: スクロールバーを非表示
+              },
+              // スマホの画面幅では縦スクロールに変更
+              "@media (max-width: 600px)": {
+                flexDirection: "column", // スマホでは縦スクロール
+                overflowY: "auto", // 縦スクロールを許可
+                overflowX: "hidden", // 横スクロールを無効化
+              },
             }}
           >
             {trips.map((trip) => (
               <Card
                 key={trip.id}
                 sx={{
-                  width: "100%",
+                  minWidth: 350,
                   maxWidth: 370,
                   boxShadow: 3,
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  transition: "transform 0.3s ease",
                   "&:hover": {
-                    transform: "scale(1.02)",
+                    transform: "scale(1.05)",
                     boxShadow: 6,
                   },
                   padding: 3,

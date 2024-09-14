@@ -89,28 +89,7 @@ export const ResponsiveAppBar = () => {
     >
       <Container maxWidth='none'>
         <Toolbar disableGutters>
-          <img
-            src={TravelPlanner}
-            style={{ width: "250px" }}
-            alt="Travel Planner"
-          />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "Roboto, sans-serif",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          ></Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="open menu"
@@ -151,6 +130,27 @@ export const ResponsiveAppBar = () => {
             </Menu>
           </Box>
 
+          <img
+            src={TravelPlanner}
+            style={{ width: "250px" }}
+            alt="Travel Planner"
+          />
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontFamily: "Roboto, sans-serif",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          ></Typography>
+
           <Typography
             variant="h5"
             noWrap
@@ -167,7 +167,6 @@ export const ResponsiveAppBar = () => {
               textDecoration: "none",
             }}
           >
-            Travel Plan
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
