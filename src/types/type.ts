@@ -1,6 +1,7 @@
 export interface Destination {
     date: Date | string;
     name: string;
+    cost: number | string;
     notes: string;
     googleMapLink: string;
   }
@@ -11,5 +12,8 @@ export interface Destination {
     startDate: Date;
     endDate: Date;
     budget: number;
-    destinations: Destination[]; // 配列で囲む
+    createdBy: string;
+    shareWith: string[];
+    notes: string
+    destinations: Destination[];
   }

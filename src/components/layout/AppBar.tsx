@@ -13,9 +13,11 @@ import MenuItem from "@mui/material/MenuItem";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
+import { alpha } from "@mui/material/styles";
+import TravelPlanner from "../../../public/icons/TravelPlanner.png";
 
 const pages = ["ダッシュボード", "プラン作成", "未定"];
-const settings = ["プロフィール","ログアウト" ];
+const settings = ["プロフィール", "ログアウト"];
 
 export const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -27,7 +29,6 @@ export const ResponsiveAppBar = () => {
   const { user, signOutUser } = useAuth();
   const navigate = useNavigate();
 
-  // ユーザーアイコンを表示
   const userAvatar = user ? (
     <Avatar src={user.photoURL ?? ""} />
   ) : (
@@ -83,9 +84,21 @@ export const ResponsiveAppBar = () => {
   }
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
+    <AppBar
+      position="static"
+      sx={{
+        backgroundImage: "linear-gradient(135deg, #6e8efb 0%, #a777e3 100%)",
+        color: "white",
+        boxShadow: "none",
+      }}
+    >
+      <Container maxWidth='none'>
         <Toolbar disableGutters>
+          <img
+            src={TravelPlanner}
+            style={{ width: "250px" }}
+            alt="Travel Planner"
+          />
           <Typography
             variant="h6"
             noWrap
@@ -94,20 +107,18 @@ export const ResponsiveAppBar = () => {
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
+              fontFamily: "Roboto, sans-serif",
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
             }}
-          >
-            Travel Plan
-          </Typography>
+          ></Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="open menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -129,7 +140,13 @@ export const ResponsiveAppBar = () => {
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{ display: { xs: "block", md: "none" } }}
+              sx={{
+                display: { xs: "block", md: "none" },
+                "& .MuiMenu-paper": {
+                  backgroundColor: alpha("#6e8efb", 0.9),
+                  color: "white",
+                },
+              }}
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={() => handlePageClick(page)}>
@@ -138,6 +155,7 @@ export const ResponsiveAppBar = () => {
               ))}
             </Menu>
           </Box>
+
           <Typography
             variant="h5"
             noWrap
@@ -147,26 +165,36 @@ export const ResponsiveAppBar = () => {
               mr: 2,
               display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "monospace",
+              fontFamily: "Roboto, sans-serif",
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
             }}
           >
-            TravelPlan
+            Travel Plan
           </Typography>
+
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={() => handlePageClick(page)}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: alpha("#fff", 0.1),
+                  },
+                }}
               >
                 {page}
               </Button>
             ))}
           </Box>
+
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -174,7 +202,13 @@ export const ResponsiveAppBar = () => {
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: "45px" }}
+              sx={{
+                mt: "45px",
+                "& .MuiMenu-paper": {
+                  backgroundColor: alpha("#a777e3", 0.9),
+                  color: "white",
+                },
+              }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
@@ -190,7 +224,12 @@ export const ResponsiveAppBar = () => {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={setting === "ログアウト" ? handleLogout : handleProfileClick}>
+                <MenuItem
+                  key={setting}
+                  onClick={
+                    setting === "ログアウト" ? handleLogout : handleProfileClick
+                  }
+                >
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}

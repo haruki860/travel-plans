@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { NewPlanButton } from "../ui/ NewPlanButton";
 import { db } from "../../firebase/firebase";
 import {
   collection,
@@ -13,67 +12,34 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "../hooks/useAuth";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Paper,
   Box,
+  Card,
+  CardActions,
+  CardContent,
   Typography,
-  Button,
-  TableContainer,
-  TablePagination,
   Chip,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import ArticleIcon from "@mui/icons-material/Article";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import { LoadingIcon } from "../ui/LoadingIcon";
 
 // ユーザー情報を取得する関数
-const fetchUserNames = async (userIds: string[]) => {
-  try {
-    const userNames = [];
-    for (const uid of userIds) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        userNames.push(userData.nickname); // nicknameを追加
-      }
-    }
-    return userNames;
-  } catch (error) {
-    console.error("ユーザー情報の取得に失敗しました:", error);
-    return [];
-  }
-};
-
 export const DashbordArea: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [trips, setTrips] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading状態を追加
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const fetchTrips = async () => {
     try {
-      if (!user) {
-        return;
-      }
+      if (!user) return;
 
       const userTripsRef = collection(db, "trips");
       const q = query(userTripsRef, where("createdBy", "==", user.uid));
@@ -81,16 +47,16 @@ export const DashbordArea: React.FC = () => {
       const userTrips = await Promise.all(
         querySnapshot.docs.map(async (doc) => {
           const tripData = doc.data();
-          const sharedUserNames = await fetchUserNames(
-            [...tripData.sharedWith, tripData.createdBy] // createdByを追加
-          );
+          const sharedUserNames = await fetchUserNames([
+            ...tripData.sharedWith,
+            tripData.createdBy,
+          ]);
           return {
             id: doc.id,
-            type: "userTrip",
             ...tripData,
             startDate: tripData.startDate.toDate(),
             endDate: tripData.endDate.toDate(),
-            sharedUsers: sharedUserNames, // 共有ユーザー名を追加
+            sharedUsers: sharedUserNames,
           };
         })
       );
@@ -104,138 +70,178 @@ export const DashbordArea: React.FC = () => {
       const sharedTrips = await Promise.all(
         sharedSnapshot.docs.map(async (doc) => {
           const tripData = doc.data();
-          const sharedUserNames = await fetchUserNames(
-            [...tripData.sharedWith, tripData.createdBy] // createdByを追加
-          );
+          const sharedUserNames = await fetchUserNames([
+            ...tripData.sharedWith,
+            tripData.createdBy,
+          ]);
           return {
             id: doc.id,
-            type: "sharedTrip",
             ...tripData,
             startDate: tripData.startDate.toDate(),
             endDate: tripData.endDate.toDate(),
-            sharedUsers: sharedUserNames, // 共有ユーザー名を追加
+            sharedUsers: sharedUserNames,
           };
         })
       );
 
       const allTrips = [...userTrips, ...sharedTrips];
+      allTrips.sort((a, b) => a.startDate - b.startDate);
+
       setTrips(allTrips);
+      setIsLoading(false); // データ取得完了後、Loading状態をfalseにする
     } catch (error) {
       console.error("データの取得に失敗しました:", error);
+      setIsLoading(false); // エラー発生時でもLoading状態をfalseにする
+    }
+  };
+
+  const fetchUserNames = async (userIds: string[]) => {
+    try {
+      const userNames = [];
+      for (const uid of userIds) {
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          userNames.push(userData.nickname);
+        }
+      }
+      return userNames;
+    } catch (error) {
+      console.error("ユーザー情報の取得に失敗しました:", error);
+      return [];
     }
   };
 
   useEffect(() => {
     fetchTrips();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleDeleteTrip = async (tripId: string) => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
     if (window.confirm("本当に削除しますか？")) {
       const tripRef = doc(db, "trips", tripId);
       await deleteDoc(tripRef);
-      const updatedTrips = trips.filter((trip) => trip.id !== tripId);
-      setTrips(updatedTrips);
+      setTrips(trips.filter((trip) => trip.id !== tripId));
     }
   };
 
   return (
-    <>
-      <Box sx={{ m: 2 }}>
-        <NewPlanButton />
-      </Box>
-      <Paper sx={{ marginTop: 4, padding: 2, borderRadius: 2, ml: 2, mr: 2 }}>
+    <Box sx={{ marginTop: 4, padding: 2 }}>
+      {isLoading ? (
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
-            mb: 2,
+            height: "100vh",
           }}
         >
-          <Typography variant="h6">旅行一覧</Typography>
+          <LoadingIcon />
         </Box>
-        <TableContainer>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>旅行名</TableCell>
-                <TableCell>開始日</TableCell>
-                <TableCell>終了日</TableCell>
-                <TableCell>予算</TableCell>
-                <TableCell>メンバー</TableCell>
-                <TableCell>詳細</TableCell>
-                <TableCell>編集</TableCell>
-                <TableCell>削除</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {trips
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((trip) => (
-                  <TableRow key={trip.id} sx={{ cursor: "pointer" }}>
-                    <TableCell>{trip.tripName}</TableCell>
-                    <TableCell>{trip.startDate.toLocaleDateString()}</TableCell>
-                    <TableCell>{trip.endDate.toLocaleDateString()}</TableCell>
-                    <TableCell>{trip.budget}円</TableCell>
-                    <TableCell>
-                      {trip.sharedUsers.length > 0 ? (
-                        trip.sharedUsers.map((user: string, index: number) => (
-                          <Chip key={index} label={user} variant="outlined" sx={{ marginRight: 1 }} />
-                        ))
-                      ) : (
-                        "なし"
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        color="primary"
-                        onClick={() => {
-                          navigate(`/dashboard/${trip.id}`);
-                        }}
-                      >
-                        <ArticleIcon />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="text"
-                        color="primary"
-                        onClick={() => {
-                          navigate(`/dashboard/edit/${trip.id}`);
-                        }}
-                      >
-                        <ModeEditIcon />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        color="error"
-                        onClick={() => {
-                          handleDeleteTrip(trip.id);
-                        }}
-                      >
-                        <DeleteForeverIcon />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={trips.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-    </>
+      ) : (
+        <>
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{ mb: 6, fontWeight: "bold" }}
+          >
+            旅行一覧
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 4,
+            }}
+          >
+            {trips.map((trip) => (
+              <Card
+                key={trip.id}
+                sx={{
+                  width: "100%",
+                  maxWidth: 370,
+                  boxShadow: 3,
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  "&:hover": {
+                    transform: "scale(1.02)",
+                    boxShadow: 6,
+                  },
+                  padding: 3,
+                  borderRadius: 2,
+                  background: "white",
+                  marginBottom: 4,
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="h5"
+                    gutterBottom
+                    sx={{ fontWeight: "bold", color: "#333" }}
+                  >
+                    {trip.tripName}
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <CalendarTodayIcon sx={{ mr: 1, color: "#3f51b5" }} />
+                    <Typography variant="h6">
+                      {trip.startDate.toLocaleDateString()} -{" "}
+                      {trip.endDate.toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                    <AttachMoneyIcon sx={{ mr: 1, color: "#4caf50" }} />
+                    <Typography variant="h6">{trip.budget}円</Typography>
+                  </Box>
+                  <Typography sx={{ my: 2 }}>
+                    <PeopleAltIcon />
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {trip.sharedUsers.length > 0 ? (
+                      trip.sharedUsers.map((user: string, index: number) => (
+                        <Chip
+                          key={index}
+                          label={user}
+                          variant="outlined"
+                          sx={{
+                            borderColor: "#00796b",
+                            color: "#00796b",
+                            backgroundColor: "rgba(0, 121, 107, 0.1)",
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <Typography>なし</Typography>
+                    )}
+                  </Box>
+                </CardContent>
+                <CardActions sx={{ justifyContent: "space-evenly", mt: 2 }}>
+                  <IconButton
+                    onClick={() => navigate(`/dashboard/${trip.id}`)}
+                    color="secondary"
+                  >
+                    <ArticleIcon fontSize="large" />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => navigate(`/dashboard/edit/${trip.id}`)}
+                    color="secondary"
+                  >
+                    <ModeEditIcon fontSize="large" />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleDeleteTrip(trip.id)}
+                    color="error"
+                  >
+                    <DeleteForeverIcon fontSize="large" />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            ))}
+          </Box>
+        </>
+      )}
+    </Box>
   );
 };

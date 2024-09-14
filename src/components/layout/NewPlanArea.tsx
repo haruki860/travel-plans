@@ -10,18 +10,24 @@ import {
   Typography,
   Button,
   Stack,
+  AccordionSummary,
+  AccordionDetails,
+  Accordion,
+  Box,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export const NewPlanArea: React.FC = () => {
   const [tripName, setTripName] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState("");
   const [destinations, setDestinations] = useState<
     {
       name: string;
       date: Date;
       notes: string;
+      cost: string;
       googleMapLink: string;
     }[]
   >([]);
@@ -49,6 +55,7 @@ export const NewPlanArea: React.FC = () => {
             name: destination.name,
             date: destination.date.toISOString(),
             notes: destination.notes,
+            cost: destination.cost,
             googleMapLink: destination.googleMapLink,
           })),
           notes,
@@ -70,6 +77,7 @@ export const NewPlanArea: React.FC = () => {
       name: string;
       date: Date;
       notes: string;
+      cost: string;
       googleMapLink: string;
     },
     value: string | Date
@@ -92,6 +100,7 @@ export const NewPlanArea: React.FC = () => {
         name: "",
         date: new Date(),
         notes: "",
+        cost: "",
         googleMapLink: "",
       },
     ]);
@@ -117,99 +126,165 @@ export const NewPlanArea: React.FC = () => {
         </Typography>
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
-            <TextField
-              fullWidth
-              label="旅行名"
-              value={tripName}
-              onChange={(e) => setTripName(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              type="date"
-              label="開始日"
-              value={startDate.toISOString().slice(0, 10)}
-              onChange={(e) => setStartDate(new Date(e.target.value))}
-            />
-            <TextField
-              fullWidth
-              type="date"
-              label="終了日"
-              value={endDate.toISOString().slice(0, 10)}
-              onChange={(e) => setEndDate(new Date(e.target.value))}
-            />
-            <TextField
-              fullWidth
-              type="number"
-              label="予算"
-              value={budget}
-              onChange={(e) => setBudget(Number(e.target.value))}
-            />
-            <Typography variant="subtitle1" gutterBottom>
-              訪問先
-            </Typography>
-            {destinations.map((destination, index) => (
-              <Stack spacing={2} key={index}>
-                <TextField
-                  fullWidth
-                  label="名称"
-                  value={destination.name}
-                  onChange={(e) =>
-                    handleDestinationChange(index, "name", e.target.value)
-                  }
-                />
-                <TextField
-                  fullWidth
-                  type="date"
-                  label="日付"
-                  value={destination.date.toISOString().slice(0, 10)}
-                  onChange={(e) =>
-                    handleDestinationChange(
-                      index,
-                      "date",
-                      new Date(e.target.value)
-                    )
-                  }
-                />
-                <TextField
-                  fullWidth
-                  label="メモ"
-                  value={destination.notes}
-                  onChange={(e) =>
-                    handleDestinationChange(index, "notes", e.target.value)
-                  }
-                />
-                <TextField
-                  fullWidth
-                  label="Google Maps リンク"
-                  value={destination.googleMapLink}
-                  onChange={(e) =>
-                    handleDestinationChange(
-                      index,
-                      "googleMapLink",
-                      e.target.value
-                    )
-                  }
-                />
-              </Stack>
-            ))}
-            <Button variant="contained" onClick={addDestination}>
-              訪問先を追加
-            </Button>
-            <Typography variant="subtitle1" gutterBottom>
-              共有ユーザーのUID
-            </Typography>
-            {sharedWith.map((uid, index) => (
+            {/* フォームフィールドを2列に配置 */}
+            <Box display="flex" flexWrap="wrap" gap={2}>
               <TextField
-                key={index}
                 fullWidth
-                label="共有ユーザーUID"
-                value={uid}
-                onChange={(e) => handleSharedUserChange(index, e.target.value)}
+                label="旅行名"
+                value={tripName}
+                onChange={(e) => setTripName(e.target.value)}
+                sx={{ flex: "1 1 calc(50% - 8px)" }}
               />
-            ))}
-            <Button variant="contained" onClick={addSharedUser}>
-              共有ユーザーを追加
-            </Button>
+              <TextField
+                fullWidth
+                type="date"
+                label="開始日"
+                value={startDate.toISOString().slice(0, 10)}
+                onChange={(e) => setStartDate(new Date(e.target.value))}
+                sx={{ flex: "1 1 calc(50% - 8px)" }}
+                slotProps={{ inputLabel: { shrink: true } }} // 代替
+              />
+
+              <TextField
+                fullWidth
+                label="予算"
+                value={budget}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  const numericValue = inputValue.replace(/[^0-9]/g, "");
+                  setBudget(numericValue);
+                }}
+                sx={{ flex: "1 1 calc(50% - 8px)" }}
+              />
+              <TextField
+                fullWidth
+                type="date"
+                label="終了日"
+                value={endDate.toISOString().slice(0, 10)}
+                onChange={(e) => setEndDate(new Date(e.target.value))}
+                sx={{ flex: "1 1 calc(50% - 8px)" }}
+                slotProps={{ inputLabel: { shrink: true } }} // 代替
+              />
+            </Box>
+
+            {/* 訪問先セクションをアコーディオンに */}
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>訪問先</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {destinations.map((destination, index) => (
+                  <Card key={index} sx={{ marginBottom: 2 }}>
+                    <CardContent>
+                      <Stack spacing={2}>
+                        <Box display="flex" flexWrap="wrap" gap={2}>
+                          <TextField
+                            fullWidth
+                            label="名称"
+                            value={destination.name}
+                            onChange={(e) =>
+                              handleDestinationChange(
+                                index,
+                                "name",
+                                e.target.value
+                              )
+                            }
+                            sx={{ flex: "1 1 calc(50% - 8px)" }}
+                          />
+                          <TextField
+                            fullWidth
+                            type="date"
+                            label="日付"
+                            value={destination.date.toISOString().slice(0, 10)}
+                            onChange={(e) =>
+                              handleDestinationChange(
+                                index,
+                                "date",
+                                new Date(e.target.value)
+                              )
+                            }
+                            sx={{ flex: "1 1 calc(50% - 8px)" }}
+                            slotProps={{ inputLabel: { shrink: true } }} // 代替
+                          />
+                          <TextField
+                            fullWidth
+                            label="コスト"
+                            value={destination.cost}
+                            onChange={(e) => {
+                              const inputValue = e.target.value;
+                              const numericValue = inputValue.replace(
+                                /[^0-9]/g,
+                                ""
+                              );
+                              handleDestinationChange(
+                                index,
+                                "cost",
+                                numericValue
+                              );
+                            }}
+                            sx={{ flex: "1 1 calc(50% - 8px)" }}
+                          />
+                          <TextField
+                            fullWidth
+                            label="Google Maps リンク"
+                            value={destination.googleMapLink}
+                            onChange={(e) =>
+                              handleDestinationChange(
+                                index,
+                                "googleMapLink",
+                                e.target.value
+                              )
+                            }
+                            sx={{ flex: "1 1 calc(50% - 8px)" }}
+                          />
+                        </Box>
+                        <TextField
+                          fullWidth
+                          label="メモ"
+                          value={destination.notes}
+                          onChange={(e) =>
+                            handleDestinationChange(
+                              index,
+                              "notes",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                ))}
+                <Button variant="contained" onClick={addDestination}>
+                  訪問先を追加
+                </Button>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* 共有ユーザーセクションをアコーディオンに */}
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>共有ユーザーのUID</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {sharedWith.map((uid, index) => (
+                  <TextField
+                    key={index}
+                    fullWidth
+                    label="共有ユーザーUID"
+                    value={uid}
+                    onChange={(e) =>
+                      handleSharedUserChange(index, e.target.value)
+                    }
+                    sx={{ marginBottom: 2 }}
+                  />
+                ))}
+                <Button variant="contained" onClick={addSharedUser}>
+                  共有ユーザーを追加
+                </Button>
+              </AccordionDetails>
+            </Accordion>
+
+            {/* メモフィールド */}
             <TextField
               fullWidth
               label="メモ"
@@ -218,6 +293,8 @@ export const NewPlanArea: React.FC = () => {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
+
+            {/* 作成ボタン */}
             <Button type="submit" variant="contained" fullWidth>
               作成
             </Button>

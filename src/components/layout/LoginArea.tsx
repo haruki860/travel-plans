@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { Button, LinearProgress } from "@mui/material";
+import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { LoadingIcon } from "../ui/LoadingIcon";
 
 export const LoginArea: React.FC = () => {
   const { isLoading, signInWithGoogle, user } = useAuth();
@@ -32,13 +33,19 @@ export const LoginArea: React.FC = () => {
 
   return (
     <div className="flex justify-center items-center h-screen flex-col gap-10">
-      <div className="text-2xl font-bold">
-        Googleアカウントでログインしてください
-      </div>
-      {isLoading && <LinearProgress />}
-      <Button onClick={handleLogin} variant="contained">
-        ログイン
-      </Button>
+      {isLoading && (
+        <LoadingIcon />
+      )}
+      {!isLoading && (
+        <>
+          <div className="text-2xl font-bold">
+            Googleアカウントでログインしてください
+          </div>
+          <Button onClick={handleLogin} variant="contained">
+            ログイン
+          </Button>
+        </>
+      )}
     </div>
   );
 };

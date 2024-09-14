@@ -7,7 +7,7 @@ import { useAuth } from "./components/hooks/useAuth";
 import { NewPlanPage } from "./components/pages/NewPlanPage";
 import { DetailPlanPage } from "./components/pages/DetailPlanPage";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import theme from "./theme";
+import {theme} from "./theme";
 import { EditPlanPage } from "./components/pages/EditPlanPage";
 import { AuthProvider } from "./components/context/AuthContext";
 import ProfilePage from "./components/pages/ProfilePage";
@@ -16,7 +16,6 @@ const App: React.FC = () => {
   const { user, isLoading } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // user が更新されたときにコンポーネントを再レンダリングする
   useEffect(() => {
     if (user && !isLoading) {
       setIsLoggedIn(true);

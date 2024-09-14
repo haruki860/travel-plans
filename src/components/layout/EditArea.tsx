@@ -96,6 +96,7 @@ export const EditArea: React.FC = () => {
     field: keyof {
       name: string;
       date: Date;
+      cost: string;
       notes: string;
       googleMapLink: string;
     },
@@ -124,6 +125,7 @@ export const EditArea: React.FC = () => {
         {
           name: "",
           date: new Date(),
+          cost: "",
           notes: "",
           googleMapLink: "",
         },
@@ -181,7 +183,6 @@ export const EditArea: React.FC = () => {
             <TextField
               fullWidth
               label="予算"
-              type="number"
               value={trip.budget || ""}
               onChange={(e) =>
                 setTrip({ ...trip, budget: parseInt(e.target.value, 10) })
@@ -222,6 +223,20 @@ export const EditArea: React.FC = () => {
                       e.target.value
                     )
                   }
+                />
+                <TextField
+                  fullWidth
+                  label="コスト"
+                  value={trip.destinations[selectedDestinationIndex].cost || ""}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    const numericValue = inputValue.replace(/[^0-9]/g, "");
+                    handleDestinationChange(
+                      selectedDestinationIndex,
+                      "cost",
+                      numericValue,
+                    );
+                  }}
                 />
                 <TextField
                   fullWidth
