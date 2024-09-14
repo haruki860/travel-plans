@@ -20,6 +20,7 @@ import {
   Chip,
   IconButton,
   Divider,
+  Tooltip, 
 } from "@mui/material";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -29,11 +30,10 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { LoadingIcon } from "../ui/LoadingIcon";
 
-// ユーザー情報を取得する関数
 export const DashbordArea: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [trips, setTrips] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Loading状態を追加
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -88,10 +88,10 @@ export const DashbordArea: React.FC = () => {
       allTrips.sort((a, b) => a.startDate - b.startDate);
 
       setTrips(allTrips);
-      setIsLoading(false); // データ取得完了後、Loading状態をfalseにする
+      setIsLoading(false);
     } catch (error) {
       console.error("データの取得に失敗しました:", error);
-      setIsLoading(false); // エラー発生時でもLoading状態をfalseにする
+      setIsLoading(false);
     }
   };
 
@@ -115,7 +115,6 @@ export const DashbordArea: React.FC = () => {
 
   useEffect(() => {
     fetchTrips();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleDeleteTrip = async (tripId: string) => {
@@ -218,24 +217,30 @@ export const DashbordArea: React.FC = () => {
                   </Box>
                 </CardContent>
                 <CardActions sx={{ justifyContent: "space-evenly", mt: 2 }}>
-                  <IconButton
-                    onClick={() => navigate(`/dashboard/${trip.id}`)}
-                    color="secondary"
-                  >
-                    <ArticleIcon fontSize="large" />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => navigate(`/dashboard/edit/${trip.id}`)}
-                    color="secondary"
-                  >
-                    <ModeEditIcon fontSize="large" />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleDeleteTrip(trip.id)}
-                    color="error"
-                  >
-                    <DeleteForeverIcon fontSize="large" />
-                  </IconButton>
+                  <Tooltip title="詳細">
+                    <IconButton
+                      onClick={() => navigate(`/dashboard/${trip.id}`)}
+                      color="secondary"
+                    >
+                      <ArticleIcon fontSize="large" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="編集">
+                    <IconButton
+                      onClick={() => navigate(`/dashboard/edit/${trip.id}`)}
+                      color="secondary"
+                    >
+                      <ModeEditIcon fontSize="large" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="削除">
+                    <IconButton
+                      onClick={() => handleDeleteTrip(trip.id)}
+                      color="error"
+                    >
+                      <DeleteForeverIcon fontSize="large" />
+                    </IconButton>
+                  </Tooltip>
                 </CardActions>
               </Card>
             ))}

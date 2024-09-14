@@ -78,11 +78,6 @@ export const ResponsiveAppBar = () => {
     handleCloseUserMenu();
   };
 
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
-
   return (
     <AppBar
       position="static"

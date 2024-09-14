@@ -7,30 +7,39 @@ import { doc, getDoc } from "firebase/firestore";
 import { LoadingIcon } from "../ui/LoadingIcon";
 
 export const LoginArea: React.FC = () => {
-  const { isLoading, signInWithGoogle, user } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user) {
+    const { isLoading, signInWithGoogle, user } = useAuth();
+    const navigate = useNavigate();
+  
+    useEffect(() => {
       const checkUser = async () => {
         if (user?.uid) {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            navigate("/dashboard");
-          } else {
-            navigate("/profileregister");
+          try {
+            const docRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              navigate("/dashboard");
+            } else {
+              navigate("/profileregister");
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
           }
         }
       };
-      checkUser();
-    }
-  }, [user, navigate]);
-
-  const handleLogin = () => {
-    signInWithGoogle().then(() => {});
-  };
-
+  
+      if (user) {
+        checkUser();
+      }
+    }, [user, navigate]);
+  
+    const handleLogin = async () => {
+      try {
+        await signInWithGoogle();
+      } catch (error) {
+        console.error("Error during sign in:", error);
+      }
+    };
+  
   return (
     <div className="flex justify-center items-center h-screen flex-col gap-10">
       {isLoading && (
