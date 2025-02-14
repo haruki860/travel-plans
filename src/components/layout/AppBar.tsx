@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { alpha } from "@mui/material/styles";
 import TravelPlanner from "../../../public/icons/TravelPlanner.png";
 
-const pages = ["ダッシュボード", "プラン作成", "未定"];
+const pages = ["ダッシュボード", "プラン作成", "カレンダー"];
 const settings = ["プロフィール", "ログアウト"];
 
 export const ResponsiveAppBar = () => {
@@ -67,6 +67,9 @@ export const ResponsiveAppBar = () => {
       case "プラン編集":
         navigate("/edit-plan");
         break;
+      case "カレンダー":
+        navigate("/calender");
+        break;
       default:
         break;
     }
@@ -80,16 +83,16 @@ export const ResponsiveAppBar = () => {
 
   return (
     <AppBar
-      position="static"
+      position="sticky"
       sx={{
         backgroundImage: "linear-gradient(135deg, #6e8efb 0%, #a777e3 100%)",
         color: "white",
         boxShadow: "none",
       }}
     >
-      <Container maxWidth='none'>
+      <Container maxWidth="none">
         <Toolbar disableGutters>
-        <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="open menu"
@@ -166,8 +169,7 @@ export const ResponsiveAppBar = () => {
               color: "inherit",
               textDecoration: "none",
             }}
-          >
-          </Typography>
+          ></Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (

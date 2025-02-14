@@ -12,6 +12,7 @@ import { EditPlanPage } from "./components/pages/EditPlanPage";
 import { AuthProvider } from "./components/context/AuthContext";
 import ProfilePage from "./components/pages/ProfilePage";
 import RegisterPage from "./components/pages/RegisterPage";
+import CalenderPage from "./components/pages/CalenderPage";
 const App: React.FC = () => {
   const { user, isLoading } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -39,6 +40,8 @@ const App: React.FC = () => {
             <Route path="/new-plan" element={<NewPlanPage />} />
             <Route path="/dashboard/:id" element={<DetailPlanPage />} />
             <Route path="/dashboard/edit/:id" element={<EditPlanPage />} />
+            <Route path="/calender" element={<CalenderPage />} />
+
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
