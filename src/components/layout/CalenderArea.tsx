@@ -103,7 +103,8 @@ export const CalendarArea: React.FC = () => {
                 endAccessor="end"
                 style={{ height: 450 }} // カレンダーを小さくする
                 onSelectEvent={handleSelectEvent}
-                eventPropGetter={(event) => ({
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                eventPropGetter={(_event) => ({
                   style: {
                     backgroundColor: "#3f51b5", // カレンダーのイベントの色
                     color: "#ffffff", // 文字を白く
