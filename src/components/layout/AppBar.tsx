@@ -85,13 +85,15 @@ export const ResponsiveAppBar = () => {
     <AppBar
       position="sticky"
       sx={{
-        backgroundImage: "linear-gradient(135deg, #6e8efb 0%, #a777e3 100%)",
+        // グラデーションを削除し、ダークブルーをベースに統一
+        backgroundColor: "#3f51b5",
         color: "white",
         boxShadow: "none",
       }}
     >
       <Container maxWidth="none">
         <Toolbar disableGutters>
+          {/* ---------- ハンバーガーメニュー（小画面用） ---------- */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -103,25 +105,22 @@ export const ResponsiveAppBar = () => {
             >
               <MenuIcon />
             </IconButton>
+
+            {/* ▼ ナビメニュー（小画面版） ▼ */}
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
                 display: { xs: "block", md: "none" },
+                // メニュー背景をメインカラーに近い色 + α値で若干透過
                 "& .MuiMenu-paper": {
-                  backgroundColor: alpha("#6e8efb", 0.9),
-                  color: "white",
+                  backgroundColor: alpha("#3f51b5", 0.9),
+                  color: "#fff",
                 },
               }}
             >
@@ -133,11 +132,14 @@ export const ResponsiveAppBar = () => {
             </Menu>
           </Box>
 
+          {/* ---------- ロゴ ---------- */}
           <img
             src={TravelPlanner}
-            style={{ width: "250px" }}
+            style={{ width: "200px" }}
             alt="Travel Planner"
           />
+
+          {/* ---------- タイトル（大画面用はあえて空） ---------- */}
           <Typography
             variant="h6"
             noWrap
@@ -152,8 +154,11 @@ export const ResponsiveAppBar = () => {
               color: "inherit",
               textDecoration: "none",
             }}
-          ></Typography>
+          >
+            {/* 必要ならここにアプリ名などを配置 */}
+          </Typography>
 
+          {/* ---------- タイトル（小画面用はあえて空） ---------- */}
           <Typography
             variant="h5"
             noWrap
@@ -169,8 +174,11 @@ export const ResponsiveAppBar = () => {
               color: "inherit",
               textDecoration: "none",
             }}
-          ></Typography>
+          >
+            {/* 必要ならここにアプリ名などを配置 */}
+          </Typography>
 
+          {/* ---------- ナビメニュー（大画面用） ---------- */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
@@ -182,6 +190,7 @@ export const ResponsiveAppBar = () => {
                   display: "block",
                   fontWeight: "bold",
                   "&:hover": {
+                    // ホバー時は白文字の上に白系薄い背景を重ねてわずかに明るく
                     backgroundColor: alpha("#fff", 0.1),
                   },
                 }}
@@ -191,6 +200,7 @@ export const ResponsiveAppBar = () => {
             ))}
           </Box>
 
+          {/* ---------- ユーザーメニュー ---------- */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -201,7 +211,7 @@ export const ResponsiveAppBar = () => {
               sx={{
                 mt: "45px",
                 "& .MuiMenu-paper": {
-                  backgroundColor: alpha("#a777e3", 0.9),
+                  backgroundColor: alpha("#3f51b5", 0.9),
                   color: "white",
                 },
               }}

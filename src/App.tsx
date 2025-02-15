@@ -7,7 +7,7 @@ import { useAuth } from "./components/hooks/useAuth";
 import { NewPlanPage } from "./components/pages/NewPlanPage";
 import { DetailPlanPage } from "./components/pages/DetailPlanPage";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import {theme} from "./theme";
+import { theme } from "./theme";
 import { EditPlanPage } from "./components/pages/EditPlanPage";
 import { AuthProvider } from "./components/context/AuthContext";
 import ProfilePage from "./components/pages/ProfilePage";
@@ -23,7 +23,6 @@ const App: React.FC = () => {
     }
   }, [user, isLoading]);
 
-  console.log(user);
 
   return (
     <AuthProvider>
@@ -41,7 +40,6 @@ const App: React.FC = () => {
             <Route path="/dashboard/:id" element={<DetailPlanPage />} />
             <Route path="/dashboard/edit/:id" element={<EditPlanPage />} />
             <Route path="/calender" element={<CalenderPage />} />
-
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

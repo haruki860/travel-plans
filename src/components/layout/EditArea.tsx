@@ -14,6 +14,7 @@ import {
   MenuItem,
   Card,
   CardContent,
+  Box,
 } from "@mui/material";
 import { Destination, Trip } from "../../types/type";
 
@@ -21,19 +22,18 @@ export const EditArea: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [trip, setTrip] = useState<any>({});
   const [selectedDestinationIndex, setSelectedDestinationIndex] = useState<
     number | null
   >(null);
-  const [sharedWith, setSharedWith] = useState<string[]>([]); // 共有ユーザーの UID を格納する配列
-  const [newSharedUid, setNewSharedUid] = useState<string>(""); // 新しい共有 UID を格納する状態
+  const [sharedWith, setSharedWith] = useState<string[]>([]);
+  const [newSharedUid, setNewSharedUid] = useState<string>("");
 
   useEffect(() => {
     const fetchTrip = async () => {
-      if (!user || !id) {
-        return;
-      }
+      if (!user || !id) return;
 
       try {
         const tripRef = doc(db, "trips", id);
@@ -51,16 +51,14 @@ export const EditArea: React.FC = () => {
                 date: new Date(destination.date),
               })),
           });
-          setSharedWith(docSnap.data().sharedWith || []); // 共有ユーザーの UID を取得
+          setSharedWith(docSnap.data().sharedWith || []);
         } else {
           console.log("エラーが発生しました。");
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.log("データの取得中にエラーが発生しました");
+        console.error("データの取得中にエラーが発生しました",error);
       }
     };
-
     fetchTrip();
   }, [user, id]);
 
@@ -82,12 +80,11 @@ export const EditArea: React.FC = () => {
           ...destination,
           date: destination.date.toString(),
         })),
-        sharedWith: sharedWith, // 共有ユーザーのUIDを更新
+        sharedWith: sharedWith,
       });
       navigate("/dashboard");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.log("旅行の更新に失敗しました");
+      console.error("旅行の更新に失敗しました",error);
     }
   };
 
@@ -136,7 +133,7 @@ export const EditArea: React.FC = () => {
   const handleAddSharedUid = () => {
     if (newSharedUid) {
       setSharedWith([...sharedWith, newSharedUid]);
-      setNewSharedUid(""); // 入力欄をクリア
+      setNewSharedUid("");
     }
   };
 
@@ -145,172 +142,227 @@ export const EditArea: React.FC = () => {
   };
 
   return (
-    <Card sx={{ maxWidth: 600, margin: "auto", marginTop: 2 }}>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          旅行の編集
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={2}>
-            <TextField
-              fullWidth
-              label="旅行名"
-              value={trip.tripName || ""}
-              onChange={(e) => setTrip({ ...trip, tripName: e.target.value })}
-            />
-            <TextField
-              fullWidth
-              label="開始日"
-              type="date"
-              value={
-                trip.startDate ? trip.startDate.toISOString().slice(0, 10) : ""
-              }
-              onChange={(e) =>
-                setTrip({ ...trip, startDate: new Date(e.target.value) })
-              }
-            />
-            <TextField
-              fullWidth
-              label="終了日"
-              type="date"
-              value={
-                trip.endDate ? trip.endDate.toISOString().slice(0, 10) : ""
-              }
-              onChange={(e) =>
-                setTrip({ ...trip, endDate: new Date(e.target.value) })
-              }
-            />
-            <TextField
-              fullWidth
-              label="予算"
-              value={trip.budget || ""}
-              onChange={(e) =>
-                setTrip({ ...trip, budget: parseInt(e.target.value, 10) })
-              }
-            />
-            <Typography variant="subtitle1" gutterBottom>
-              訪問先
+      <Box
+        sx={{
+          backgroundColor: "background.default",
+          minHeight: "100vh",
+          py: 4,
+        }}
+      >
+        <Card
+          sx={{
+            maxWidth: 600,
+            margin: "auto",
+            boxShadow: 3,
+            backgroundColor: "background.paper",
+          }}
+        >
+          <CardContent>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ color: "text.primary" }}
+            >
+              旅行の編集
             </Typography>
-            <FormControl fullWidth>
-              <InputLabel id="destination-select-label">訪問先</InputLabel>
-              <Select
-                labelId="destination-select-label"
-                id="destination-select"
-                value={selectedDestinationIndex ?? ""}
-                onChange={(e) =>
-                  handleDestinationSelect(e.target.value as number)
-                }
-              >
-                {trip.destinations?.map(
-                  (destination: Destination, index: number) => (
-                    <MenuItem key={index} value={index}>
-                      {destination.name}
-                    </MenuItem>
-                  )
-                )}
-              </Select>
-            </FormControl>
-            {selectedDestinationIndex !== null && (
-              <Stack spacing={2} key={selectedDestinationIndex}>
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2}>
                 <TextField
                   fullWidth
-                  label="名称"
-                  value={trip.destinations[selectedDestinationIndex].name || ""}
+                  label="旅行名"
+                  value={trip.tripName || ""}
                   onChange={(e) =>
-                    handleDestinationChange(
-                      selectedDestinationIndex,
-                      "name",
-                      e.target.value
-                    )
+                    setTrip({ ...trip, tripName: e.target.value })
                   }
                 />
                 <TextField
                   fullWidth
-                  label="コスト"
-                  value={trip.destinations[selectedDestinationIndex].cost || ""}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    const numericValue = inputValue.replace(/[^0-9]/g, "");
-                    handleDestinationChange(
-                      selectedDestinationIndex,
-                      "cost",
-                      numericValue,
-                    );
-                  }}
-                />
-                <TextField
-                  fullWidth
+                  label="開始日"
                   type="date"
-                  label="日付"
-                  value={trip.destinations[selectedDestinationIndex].date
-                    .toISOString()
-                    .slice(0, 10)}
-                  onChange={(e) =>
-                    handleDestinationChange(
-                      selectedDestinationIndex,
-                      "date",
-                      new Date(e.target.value)
-                    )
+                  value={
+                    trip.startDate
+                      ? trip.startDate.toISOString().slice(0, 10)
+                      : ""
                   }
+                  onChange={(e) =>
+                    setTrip({ ...trip, startDate: new Date(e.target.value) })
+                  }
+                  InputLabelProps={{ shrink: true }}
                 />
                 <TextField
                   fullWidth
-                  label="メモ"
+                  label="終了日"
+                  type="date"
                   value={
-                    trip.destinations[selectedDestinationIndex].notes || ""
+                    trip.endDate ? trip.endDate.toISOString().slice(0, 10) : ""
                   }
                   onChange={(e) =>
-                    handleDestinationChange(
-                      selectedDestinationIndex,
-                      "notes",
-                      e.target.value
-                    )
+                    setTrip({ ...trip, endDate: new Date(e.target.value) })
                   }
+                  InputLabelProps={{ shrink: true }}
                 />
                 <TextField
                   fullWidth
-                  label="Google Maps リンク"
-                  value={
-                    trip.destinations[selectedDestinationIndex].googleMapLink ||
-                    ""
-                  }
+                  label="予算"
+                  value={trip.budget || ""}
                   onChange={(e) =>
-                    handleDestinationChange(
-                      selectedDestinationIndex,
-                      "googleMapLink",
-                      e.target.value
-                    )
+                    setTrip({ ...trip, budget: parseInt(e.target.value, 10) })
                   }
                 />
+
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{ color: "text.primary" }}
+                >
+                  訪問先
+                </Typography>
+                <FormControl fullWidth>
+                  <InputLabel id="destination-select-label">訪問先</InputLabel>
+                  <Select
+                    labelId="destination-select-label"
+                    id="destination-select"
+                    value={selectedDestinationIndex ?? ""}
+                    label="訪問先"
+                    onChange={(e) =>
+                      handleDestinationSelect(e.target.value as number)
+                    }
+                  >
+                    {trip.destinations?.map(
+                      (destination: Destination, index: number) => (
+                        <MenuItem key={index} value={index}>
+                          {destination.name || "(未入力)"}
+                        </MenuItem>
+                      )
+                    )}
+                  </Select>
+                </FormControl>
+
+                {selectedDestinationIndex !== null && (
+                  <Stack spacing={2} key={selectedDestinationIndex}>
+                    <TextField
+                      fullWidth
+                      label="名称"
+                      value={
+                        trip.destinations[selectedDestinationIndex].name || ""
+                      }
+                      onChange={(e) =>
+                        handleDestinationChange(
+                          selectedDestinationIndex,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <TextField
+                      fullWidth
+                      label="コスト"
+                      value={
+                        trip.destinations[selectedDestinationIndex].cost || ""
+                      }
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const numericValue = inputValue.replace(/[^0-9]/g, "");
+                        handleDestinationChange(
+                          selectedDestinationIndex,
+                          "cost",
+                          numericValue
+                        );
+                      }}
+                    />
+                    <TextField
+                      fullWidth
+                      type="date"
+                      label="日付"
+                      value={trip.destinations[selectedDestinationIndex].date
+                        .toISOString()
+                        .slice(0, 10)}
+                      onChange={(e) =>
+                        handleDestinationChange(
+                          selectedDestinationIndex,
+                          "date",
+                          new Date(e.target.value)
+                        )
+                      }
+                      InputLabelProps={{ shrink: true }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="メモ"
+                      value={
+                        trip.destinations[selectedDestinationIndex].notes || ""
+                      }
+                      onChange={(e) =>
+                        handleDestinationChange(
+                          selectedDestinationIndex,
+                          "notes",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <TextField
+                      fullWidth
+                      label="Google Maps リンク"
+                      value={
+                        trip.destinations[selectedDestinationIndex]
+                          .googleMapLink || ""
+                      }
+                      onChange={(e) =>
+                        handleDestinationChange(
+                          selectedDestinationIndex,
+                          "googleMapLink",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </Stack>
+                )}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddDestination}
+                >
+                  訪問先を追加
+                </Button>
+
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{ color: "text.primary" }}
+                >
+                  共有するユーザー
+                </Typography>
+                {sharedWith.map((uid) => (
+                  <Stack direction="row" alignItems="center" key={uid}>
+                    <Typography variant="body2">{uid}</Typography>
+                  </Stack>
+                ))}
+                <TextField
+                  fullWidth
+                  label="UIDを入力"
+                  value={newSharedUid}
+                  onChange={handleSharedUidChange}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddSharedUid}
+                >
+                  追加
+                </Button>
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                >
+                  保存
+                </Button>
               </Stack>
-            )}
-            <Button variant="contained" onClick={handleAddDestination}>
-              訪問先を追加
-            </Button>
-            {/* 共有するユーザーの UID を入力するためのチェックボックスを追加 */}
-            <Typography variant="subtitle1" gutterBottom>
-              共有するユーザー
-            </Typography>
-            {sharedWith.map((uid) => (
-              <Stack direction="row" alignItems="center" key={uid}>
-                <Typography variant="body2">{uid}</Typography>
-              </Stack>
-            ))}
-            <TextField
-              fullWidth
-              label="UIDを入力"
-              value={newSharedUid}
-              onChange={handleSharedUidChange}
-            />
-            <Button variant="contained" onClick={handleAddSharedUid}>
-              追加
-            </Button>
-            <Button type="submit" variant="contained" color="primary">
-              保存
-            </Button>
-          </Stack>
-        </form>
-      </CardContent>
-    </Card>
+            </form>
+          </CardContent>
+        </Card>
+      </Box>
   );
 };

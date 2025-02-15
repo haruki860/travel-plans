@@ -30,29 +30,31 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import { LoadingIcon } from "../ui/LoadingIcon";
 
-export const DashbordArea: React.FC = () => {
+export const DashboardArea: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [trips, setTrips] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // 旅行データ取得
   const fetchTrips = async () => {
     try {
       if (!user) return;
 
+      // 自分が作成したトリップ
       const userTripsRef = collection(db, "trips");
       const q = query(userTripsRef, where("createdBy", "==", user.uid));
       const querySnapshot = await getDocs(q);
       const userTrips = await Promise.all(
-        querySnapshot.docs.map(async (doc) => {
-          const tripData = doc.data();
+        querySnapshot.docs.map(async (docSnap) => {
+          const tripData = docSnap.data();
           const sharedUserNames = await fetchUserNames([
             ...tripData.sharedWith,
             tripData.createdBy,
           ]);
           return {
-            id: doc.id,
+            id: docSnap.id,
             ...tripData,
             startDate: tripData.startDate.toDate(),
             endDate: tripData.endDate.toDate(),
@@ -61,6 +63,7 @@ export const DashbordArea: React.FC = () => {
         })
       );
 
+      // 共有されているトリップ
       const sharedTripsRef = collection(db, "trips");
       const sharedQuery = query(
         sharedTripsRef,
@@ -68,14 +71,14 @@ export const DashbordArea: React.FC = () => {
       );
       const sharedSnapshot = await getDocs(sharedQuery);
       const sharedTrips = await Promise.all(
-        sharedSnapshot.docs.map(async (doc) => {
-          const tripData = doc.data();
+        sharedSnapshot.docs.map(async (docSnap) => {
+          const tripData = docSnap.data();
           const sharedUserNames = await fetchUserNames([
             ...tripData.sharedWith,
             tripData.createdBy,
           ]);
           return {
-            id: doc.id,
+            id: docSnap.id,
             ...tripData,
             startDate: tripData.startDate.toDate(),
             endDate: tripData.endDate.toDate(),
@@ -84,6 +87,7 @@ export const DashbordArea: React.FC = () => {
         })
       );
 
+      // 全件まとめて日付順にソート
       const allTrips = [...userTrips, ...sharedTrips];
       allTrips.sort((a, b) => a.startDate - b.startDate);
 
@@ -95,9 +99,10 @@ export const DashbordArea: React.FC = () => {
     }
   };
 
+  // ユーザー名一覧取得
   const fetchUserNames = async (userIds: string[]) => {
     try {
-      const userNames = [];
+      const userNames: string[] = [];
       for (const uid of userIds) {
         const userRef = doc(db, "users", uid);
         const userSnap = await getDoc(userRef);
@@ -113,10 +118,12 @@ export const DashbordArea: React.FC = () => {
     }
   };
 
+  // マウント時にデータ取得
   useEffect(() => {
     fetchTrips();
   }, [user]);
 
+  // 旅行削除
   const handleDeleteTrip = async (tripId: string) => {
     if (!user) return;
     if (window.confirm("本当に削除しますか？")) {
@@ -127,138 +134,187 @@ export const DashbordArea: React.FC = () => {
   };
 
   return (
-    <Box sx={{ marginTop: 4, padding: 2 }}>
-      {isLoading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
-          }}
-        >
-          <LoadingIcon />
-        </Box>
-      ) : (
-        <>
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{ mb: 6, fontWeight: "bold" }}
-          >
-            旅行一覧
-          </Typography>
-          {/* スクロール可能なコンテナ */}
+      <Box
+        sx={{
+          paddingTop: 4,
+          padding: 2,
+          backgroundColor: "background.default",
+        }}
+      >
+        {isLoading ? (
           <Box
             sx={{
               display: "flex",
-              gap: 4,
-              padding: 2,
-              overflowX: "auto", // デフォルトで横スクロールを許可
-              flexWrap: "nowrap", // 横スクロール時に1行に並べる
-              scrollbarWidth: "none", // Firefox向け: スクロールバーを非表示
-              "&::-webkit-scrollbar": {
-                display: "none", // Chrome向け: スクロールバーを非表示
-              },
-              // スマホの画面幅では縦スクロールに変更
-              "@media (max-width: 600px)": {
-                flexDirection: "column", // スマホでは縦スクロール
-                overflowY: "auto", // 縦スクロールを許可
-                overflowX: "hidden", // 横スクロールを無効化
-              },
+              justifyContent: "center",
+              alignItems: "center",
+              height: "60vh",
             }}
           >
-            {trips.map((trip) => (
-              <Card
-                key={trip.id}
-                sx={{
-                  minWidth: 350,
-                  maxWidth: 370,
-                  boxShadow: 3,
-                  transition: "transform 0.3s ease",
-                  "&:hover": {
-                    transform: "scale(1.05)",
-                    boxShadow: 6,
-                  },
-                  padding: 3,
-                  borderRadius: 2,
-                  background: "white",
-                  marginBottom: 4,
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    sx={{ fontWeight: "bold", color: "#333" }}
-                  >
-                    {trip.tripName}
-                  </Typography>
-                  <Divider sx={{ my: 2 }} />
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <CalendarTodayIcon sx={{ mr: 1, color: "#3f51b5" }} />
-                    <Typography variant="h6">
-                      {trip.startDate.toLocaleDateString()} -{" "}
-                      {trip.endDate.toLocaleDateString()}
+            <LoadingIcon />
+          </Box>
+        ) : (
+          <>
+            <Typography
+              variant="h4"
+              align="center"
+              sx={{
+                mb: 6,
+                fontWeight: "bold",
+                color: "#303f9f",
+                paddingTop: 4
+              }}
+            >
+              旅行一覧
+            </Typography>
+
+            {/* カードを並べるエリア */}
+            <Box
+              sx={{
+                display: "grid",
+                gap: 4,
+                padding: 2,
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "1fr 1fr 1fr",
+                },
+              }}
+            >
+              {trips.map((trip) => (
+                <Card
+                  key={trip.id}
+                  sx={{
+                    boxShadow: 3,
+                    transition: "transform 0.3s ease",
+                    "&:hover": {
+                      transform: "scale(1.03)",
+                      boxShadow: 6,
+                    },
+                    p: 3,
+                    borderRadius: 2,
+                    backgroundColor: "background.paper",
+                  }}
+                >
+                  <CardContent>
+                    {/* 旅行名 */}
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{ fontWeight: "bold", color: "text.primary" }}
+                    >
+                      {trip.tripName}
                     </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <AttachMoneyIcon sx={{ mr: 1, color: "#4caf50" }} />
-                    <Typography variant="h6">{trip.budget}円</Typography>
-                  </Box>
-                  <Typography sx={{ my: 2 }}>
-                    <PeopleAltIcon />
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {trip.sharedUsers.length > 0 ? (
-                      trip.sharedUsers.map((user: string, index: number) => (
-                        <Chip
-                          key={index}
-                          label={user}
-                          variant="outlined"
+                    <Divider sx={{ my: 2 }} />
+
+                    {/* 期間 */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <CalendarTodayIcon
                           sx={{
-                            borderColor: "#00796b",
-                            color: "#00796b",
-                            backgroundColor: "rgba(0, 121, 107, 0.1)",
+                            verticalAlign: "middle",
+                            mr: 1,
+                            color: "primary.main",
                           }}
                         />
-                      ))
-                    ) : (
-                      <Typography>なし</Typography>
-                    )}
-                  </Box>
-                </CardContent>
-                <CardActions sx={{ justifyContent: "space-evenly", mt: 2 }}>
-                  <Tooltip title="詳細">
-                    <IconButton
-                      onClick={() => navigate(`/dashboard/${trip.id}`)}
-                      color="secondary"
-                    >
-                      <ArticleIcon fontSize="large" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="編集">
-                    <IconButton
-                      onClick={() => navigate(`/dashboard/edit/${trip.id}`)}
-                      color="secondary"
-                    >
-                      <ModeEditIcon fontSize="large" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="削除">
-                    <IconButton
-                      onClick={() => handleDeleteTrip(trip.id)}
-                      color="error"
-                    >
-                      <DeleteForeverIcon fontSize="large" />
-                    </IconButton>
-                  </Tooltip>
-                </CardActions>
-              </Card>
-            ))}
-          </Box>
-        </>
-      )}
-    </Box>
+                        期間
+                      </Typography>
+                      <Typography variant="body1">
+                        {trip.startDate.toLocaleDateString()} -{" "}
+                        {trip.endDate.toLocaleDateString()}
+                      </Typography>
+                    </Box>
+
+                    {/* 予算 */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <AttachMoneyIcon
+                          sx={{
+                            verticalAlign: "middle",
+                            mr: 1,
+                            color: "primary.main",
+                          }}
+                        />
+                        予算
+                      </Typography>
+                      <Typography variant="body1">{trip.budget}円</Typography>
+                    </Box>
+
+                    {/* 参加者 */}
+                    <Box sx={{ mb: 1 }}>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <PeopleAltIcon
+                          sx={{
+                            verticalAlign: "middle",
+                            mr: 1,
+                            color: "primary.main",
+                          }}
+                        />
+                        参加者
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                      {trip.sharedUsers.length > 0 ? (
+                        trip.sharedUsers.map(
+                          (userName: string, index: number) => (
+                            <Chip
+                              key={index}
+                              label={userName}
+                              variant="outlined"
+                              sx={{
+                                borderColor: "primary.main",
+                                color: "primary.main",
+                                backgroundColor: "rgba(63,81,181,0.08)",
+                              }}
+                            />
+                          )
+                        )
+                      ) : (
+                        <Typography>なし</Typography>
+                      )}
+                    </Box>
+                  </CardContent>
+
+                  {/* 操作アイコン */}
+                  <CardActions sx={{ justifyContent: "space-around", mt: 2 }}>
+                    <Tooltip title="詳細を見る">
+                      <IconButton
+                        onClick={() => navigate(`/dashboard/${trip.id}`)}
+                        color="primary"
+                      >
+                        <ArticleIcon fontSize="large" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="編集する">
+                      <IconButton
+                        onClick={() => navigate(`/dashboard/edit/${trip.id}`)}
+                        color="primary"
+                      >
+                        <ModeEditIcon fontSize="large" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="削除する">
+                      <IconButton
+                        onClick={() => handleDeleteTrip(trip.id)}
+                        color="error"
+                      >
+                        <DeleteForeverIcon fontSize="large" />
+                      </IconButton>
+                    </Tooltip>
+                  </CardActions>
+                </Card>
+              ))}
+            </Box>
+          </>
+        )}
+      </Box>
   );
 };

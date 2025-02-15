@@ -1,8 +1,8 @@
 import React from 'react'
-import { DashbordArea } from '../layout/DashbordArea'
+import { DashboardArea } from '../layout/DashbordArea'
 
 export const DashbordPage: React.FC = () => {
   return (
-    <DashbordArea />
+    <DashboardArea />
   )
 }

@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
+import { CalendarEvent } from "../../types/type";
+
 
 const localizer = momentLocalizer(moment);
 
 export const CalendarArea: React.FC = () => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -51,30 +53,68 @@ export const CalendarArea: React.FC = () => {
   };
 
   return (
-    <Box sx={{ marginTop: 4, padding: 2 }}>
-      {isLoading ? (
-        <Typography variant="h6" align="center">
-          ローディング中...
-        </Typography>
-      ) : (
-        <>
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{ mb: 6, fontWeight: "bold" }}
+      <Box
+        sx={{
+          paddingTop: 4,
+          padding: 2,
+          backgroundColor: "background.default",
+          minHeight: "100vh",
+        }}
+      >
+        {isLoading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
+            }}
           >
-            カレンダーで旅行を確認
-          </Typography>
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 600 }}
-            onSelectEvent={handleSelectEvent}
-          />
-        </>
-      )}
-    </Box>
+            <CircularProgress color="primary" />
+          </Box>
+        ) : (
+          <>
+            <Typography
+              variant="h4"
+              align="center"
+              sx={{
+                mb: 4,
+                fontWeight: "bold",
+                color: "primary.main",
+                paddingTop: 4,
+              }}
+            >
+              カレンダーで旅行を確認
+            </Typography>
+            <Box
+              sx={{
+                maxWidth: 800,
+                margin: "auto",
+                backgroundColor: "background.paper",
+                padding: 2,
+                borderRadius: 2,
+                boxShadow: 3,
+              }}
+            >
+              <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                style={{ height: 450 }} // カレンダーを小さくする
+                onSelectEvent={handleSelectEvent}
+                eventPropGetter={(event) => ({
+                  style: {
+                    backgroundColor: "#3f51b5", // カレンダーのイベントの色
+                    color: "#ffffff", // 文字を白く
+                    borderRadius: "4px",
+                    padding: "4px",
+                  },
+                })}
+              />
+            </Box>
+          </>
+        )}
+      </Box>
   );
 };

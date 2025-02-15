@@ -43,18 +43,18 @@ export const LoginArea: React.FC = () => {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setShowLogo(false); // 1.5秒後にロゴを非表示にする
-    }, 3000); // 1500ミリ秒 = 1.5秒
+      setShowLogo(false); 
+    }, 3000);
 
-    return () => clearTimeout(timeoutId); // コンポーネントがアンマウントされたときにタイマーをクリアする
+    return () => clearTimeout(timeoutId); 
   }, []);
 
   return (
     <div className="flex justify-center items-center h-screen flex-col gap-10">
-      {showLogo && ( // ロゴ表示状態に応じてロゴを表示
+      {showLogo && ( 
         <LoadingIcon />
       )}
-      {!isLoading && !showLogo && ( // isLoadingがfalseかつロゴが非表示の場合にログイン画面を表示
+      {!isLoading && !showLogo && (
         <>
           <div className="text-2xl font-bold">
             Googleアカウントでログインしてください

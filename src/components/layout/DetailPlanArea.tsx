@@ -7,7 +7,6 @@ import { Trip } from "../../types/type";
 import {
   Box,
   Typography,
-  Button,
   Stack,
   Card,
   CardContent,
@@ -15,12 +14,14 @@ import {
   IconButton,
   Divider,
   LinearProgress,
+  Button,
 } from "@mui/material";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import FmdGoodIcon from "@mui/icons-material/FmdGood";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import ErrorIcon from "@mui/icons-material/Error";
+
 
 export const DetailPlanArea: React.FC = () => {
   const { user } = useAuth();
@@ -49,9 +50,8 @@ export const DetailPlanArea: React.FC = () => {
   }, [user, id]);
 
   const handleDeleteDestination = async (index: number) => {
-    if (!trip || !user) {
-      return;
-    }
+    if (!trip || !user) return;
+
     if (window.confirm("本当に削除しますか？")) {
       const updatedDestinations = [...trip.destinations];
       updatedDestinations.splice(index, 1);
@@ -78,169 +78,136 @@ export const DetailPlanArea: React.FC = () => {
   const overBudget = totalCost - budget;
 
   return (
-    <Box sx={{ p: 4, borderRadius: 4 }}>
-      <Stack spacing={4}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{ textAlign: "center", fontWeight: "bold", color: "#333" }}
-        >
-          {trip.tripName}
-        </Typography>
+      <Box
+        sx={{ p: 4, backgroundColor: "background.default", minHeight: "100vh" }}
+      >
+        <Stack spacing={4} alignItems="center">
+          {/* 旅行タイトル */}
+          <Typography variant="h4" fontWeight="bold" color="text.primary">
+            {trip.tripName}
+          </Typography>
 
-        {/* 日付と予算カード */}
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={4} justifyContent="center">
-          {/* 出発日・帰宅日カード */}
-          <Card
-            sx={{
-              flex: 1,
-              backgroundColor: "#f7f7f7",
-              borderRadius: 3,
-              boxShadow: 3,
-              padding: 3,
-              maxWidth: 400, // カードの幅を固定
-              transition: "box-shadow 0.3s ease",
-              "&:hover": {
-                boxShadow: 6,
-              },
-            }}
+          {/* 出発日・帰宅日＆予算カード */}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={4}
+            justifyContent="center"
           >
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
-                出発日: {trip.startDate.toLocaleDateString()}
-              </Typography>
-              <Typography variant="h6">
-                <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
-                帰宅日: {trip.endDate.toLocaleDateString()}
-              </Typography>
-            </CardContent>
-          </Card>
-
-          {/* 予算カード */}
-          <Card
-            sx={{
-              flex: 1,
-              backgroundColor: "#f0f0f0",
-              borderRadius: 3,
-              boxShadow: 3,
-              padding: 3,
-              maxWidth: 400, // カードの幅を固定
-              transition: "box-shadow 0.3s ease",
-              "&:hover": {
-                boxShadow: 6,
-              },
-            }}
-          >
-            <CardContent>
-              {/* 予算 */}
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <AttachMoneyIcon color="primary" />
-                <Typography variant="h6">予算: {budget.toLocaleString()}円</Typography>
-              </Stack>
-
-              {/* 実費 */}
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <AttachMoneyIcon color="secondary" />
-                <Typography variant="h6">実費: {totalCost.toLocaleString()}円</Typography>
-              </Stack>
-
-              {/* 残金またはオーバー */}
-              {remainingBudget >= 0 ? (
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <AttachMoneyIcon sx={{ color: "#4caf50" }} />
-                  <Typography variant="h6" color="green">
-                    残金: {remainingBudget.toLocaleString()}円
-                  </Typography>
-                </Stack>
-              ) : (
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <ErrorIcon color="error" />
-                  <Typography variant="h6" color="error">
-                    オーバー: {overBudget.toLocaleString()}円
-                  </Typography>
-                </Stack>
-              )}
-            </CardContent>
-          </Card>
-        </Stack>
-
-        {/* 目的地エリア */}
-        <Typography variant="h5" component="h2" gutterBottom>
-          目的地
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: 3,
-          }}
-        >
-          {trip.destinations.map((destination, index) => (
+            {/* 出発日・帰宅日 */}
             <Card
-              key={index}
               sx={{
-                width: "100%",
-                maxWidth: 350,
-                boxShadow: 3,
+                flex: 1,
+                backgroundColor: "background.paper",
                 borderRadius: 3,
-                padding: 2,
-                transition: "transform 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.03)",
-                },
+                boxShadow: 3,
+                p: 3,
+                maxWidth: 400,
               }}
             >
               <CardContent>
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ mb: 2 }}
-                >
-                  <CalendarTodayIcon color="primary" />
+                <Stack direction="column" spacing={1}>
                   <Typography variant="h6">
+                    <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
+                    出発日: {trip.startDate.toLocaleDateString()}
+                  </Typography>
+                  <Typography variant="h6">
+                    <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
+                    帰宅日: {trip.endDate.toLocaleDateString()}
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+
+            {/* 予算カード */}
+            <Card
+              sx={{
+                flex: 1,
+                backgroundColor: "background.paper",
+                borderRadius: 3,
+                boxShadow: 3,
+                p: 3,
+                maxWidth: 400,
+              }}
+            >
+              <CardContent>
+                <Stack spacing={1}>
+                  <Typography variant="h6">
+                    <AttachMoneyIcon color="primary" sx={{ mr: 1 }} />
+                    予算: {budget.toLocaleString()}円
+                  </Typography>
+                  <Typography variant="h6">
+                    <AttachMoneyIcon color="secondary" sx={{ mr: 1 }} />
+                    実費: {totalCost.toLocaleString()}円
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color={remainingBudget >= 0 ? "green" : "error"}
+                  >
+                    {remainingBudget >= 0 ? (
+                      <>
+                        <AttachMoneyIcon sx={{ color: "#4caf50", mr: 1 }} />
+                        残金: {remainingBudget.toLocaleString()}円
+                      </>
+                    ) : (
+                      <>
+                        <ErrorIcon color="error" sx={{ mr: 1 }} />
+                        オーバー: {overBudget.toLocaleString()}円
+                      </>
+                    )}
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+
+          {/* 目的地エリア */}
+          <Typography variant="h5" component="h2">
+            目的地
+          </Typography>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: 3,
+            }}
+          >
+            {trip.destinations.map((destination, index) => (
+              <Card
+                key={index}
+                sx={{
+                  width: "100%",
+                  maxWidth: 350,
+                  boxShadow: 3,
+                  borderRadius: 3,
+                  p: 2,
+                  "&:hover": { boxShadow: 6 },
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6">
+                    <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
                     {new Date(destination.date).toLocaleDateString()}
                   </Typography>
-                </Stack>
-
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <FmdGoodIcon color="primary" />
-                  <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                    目的地: {destination.name}
+                  <Typography variant="body1">
+                    <FmdGoodIcon color="primary" sx={{ mr: 1 }} />
+                    {destination.name}
                   </Typography>
-                </Stack>
-
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ mt: 2 }}
-                >
-                  <AttachMoneyIcon sx={{ color: "#4caf50" }} />
-                  <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  <Typography
+                    variant="body1"
+                    sx={{ fontWeight: "bold", mt: 2 }}
+                  >
+                    <AttachMoneyIcon sx={{ color: "#4caf50", mr: 1 }} />
                     コスト: {destination.cost}円
                   </Typography>
-                </Stack>
-
-                {destination.notes && (
-                  <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                    <Typography variant="body2" color="textSecondary">
-                      メモ: {destination.notes}
-                    </Typography>
-                  </Stack>
-                )}
-
+                </CardContent>
                 <Divider sx={{ my: 2 }} />
-
                 <CardActions sx={{ justifyContent: "space-between" }}>
                   <Button
                     color="primary"
                     href={destination.googleMapLink}
                     target="_blank"
-                    rel="noopener noreferrer"
                     startIcon={<FmdGoodIcon />}
                   >
                     Google Maps
@@ -252,11 +219,10 @@ export const DetailPlanArea: React.FC = () => {
                     <DeleteForeverIcon />
                   </IconButton>
                 </CardActions>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      </Stack>
-    </Box>
+              </Card>
+            ))}
+          </Box>
+        </Stack>
+      </Box>
   );
 };
