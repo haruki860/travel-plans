@@ -26,6 +26,7 @@ export const ProfileArea: React.FC = () => {
     nickname: string;
     birthday: string;
     userphotoURL: string;
+    userId: string;
   } | null>(null);
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export const ProfileArea: React.FC = () => {
             birthday: docSnap.data().birthday,
             nickname: docSnap.data().nickname,
             userphotoURL: docSnap.data().profileImage,
+            userId: docSnap.data().userId
           });
         } else {
           console.log("ユーザーデータが見つかりません");
@@ -116,7 +118,7 @@ export const ProfileArea: React.FC = () => {
               ID:{" "}
             </Typography>
             <Typography variant="body1" sx={{ marginLeft: 1 }}>
-              {user?.uid || "不明"}
+              {userData?.userId || "未登録"}
             </Typography>
           </Box>
 
