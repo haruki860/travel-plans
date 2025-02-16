@@ -3,6 +3,7 @@ import { db } from "../../firebase/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -22,12 +23,14 @@ export const RegisterArea: React.FC = () => {
 
     if (user?.uid) {
       try {
+        const userId = uuidv4();
         await setDoc(doc(db, "users", user.uid), {
           name: user.displayName || "",
           email: user.email || "",
           profileImage: user.photoURL || "",
           nickname: nickname,
           birthday: birthday,
+          userId: userId,
         });
         navigate("/dashboard");
       } catch (error) {
@@ -50,6 +53,9 @@ export const RegisterArea: React.FC = () => {
                 fullWidth
                 id="nickname"
                 label="ニックネーム"
+                InputLabelProps={{
+                  shrink: true, // ラベルを常に上に移動させる
+                }}
                 name="nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
@@ -60,6 +66,10 @@ export const RegisterArea: React.FC = () => {
                 required
                 fullWidth
                 id="birthday"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                label="誕生日"
                 type="date"
                 name="birthday"
                 value={birthday}
@@ -67,7 +77,12 @@ export const RegisterArea: React.FC = () => {
               />
             </Box>
             <Box sx={{ mt: 3 }}>
-              <Button type="submit" fullWidth variant="contained" color="primary">
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+              >
                 登録
               </Button>
             </Box>
